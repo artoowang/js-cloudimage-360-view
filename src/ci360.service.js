@@ -22,7 +22,8 @@ import {
 class CI360Viewer {
   constructor(container, fullScreen, ratio) {
     this.container = container;
-    this.activeImage = 1;
+    this.activeRow = 1;
+    this.activeCol = 1;
     this.movementStart = 0;
     this.isClicked = false;
     this.loadedImages = 0;
@@ -202,18 +203,28 @@ class CI360Viewer {
     }
   }
 
+  // row: in {1, ..., this.rows}.
+  // col: in {1, ..., this.cols}.
+  getImageId(row, col) {
+    return (row-1) * this.cols + col;
+  }
+
+  getActiveImageId() {
+    return this.getImageId(this.activeRow, this.activeCol);
+  }
+
   moveActiveIndexUp(itemsSkipped) {
     const isReverse = this.controlReverse ? !this.spinReverse : this.spinReverse;
 
     if (this.stopAtEdges) {
-      if (this.activeImage + itemsSkipped >= this.amount) {
-        this.activeImage = this.amount;
+      if (this.activeCol + itemsSkipped >= this.cols) {
+        this.activeCol = this.cols;
 
         if (isReverse ? this.prevElem : this.nextElem) {
           addClass(isReverse ? this.prevElem : this.nextElem, 'not-active');
         }
       } else {
-        this.activeImage += itemsSkipped;
+        this.activeCol += itemsSkipped;
 
         if (this.nextElem) {
           removeClass(this.nextElem, 'not-active');
@@ -224,7 +235,7 @@ class CI360Viewer {
         }
       }
     } else {
-      this.activeImage = (this.activeImage + itemsSkipped) % this.amount || this.amount;
+      this.activeCol = (this.activeCol + itemsSkipped) % this.cols || this.cols;
     }
   }
 
@@ -232,14 +243,14 @@ class CI360Viewer {
     const isReverse = this.controlReverse ? !this.spinReverse : this.spinReverse;
 
     if (this.stopAtEdges) {
-      if (this.activeImage - itemsSkipped <= 1) {
-        this.activeImage = 1;
+      if (this.activeCol - itemsSkipped <= 1) {
+        this.activeCol = 1;
 
         if (isReverse ? this.nextElem : this.prevElem) {
           addClass(isReverse ? this.nextElem : this.prevElem, 'not-active');
         }
       } else {
-        this.activeImage -= itemsSkipped;
+        this.activeCol -= itemsSkipped;
 
         if (this.prevElem) {
           removeClass(this.prevElem, 'not-active');
@@ -249,10 +260,10 @@ class CI360Viewer {
         }
       }
     } else {
-      if (this.activeImage - itemsSkipped < 1) {
-        this.activeImage = this.amount + (this.activeImage - itemsSkipped);
+      if (this.activeCol - itemsSkipped < 1) {
+        this.activeCol = this.cols + (this.activeCol - itemsSkipped);
       } else {
-        this.activeImage -= itemsSkipped;
+        this.activeCol -= itemsSkipped;
       }
     }
   }
@@ -272,7 +283,7 @@ class CI360Viewer {
   }
 
   update() {
-    const image = this.images[this.activeImage - 1];
+    const image = this.images[this.getActiveImageId() - 1];
     const ctx = this.canvas.getContext("2d");
 
     ctx.scale(this.devicePixelRatio, this.devicePixelRatio);
@@ -313,7 +324,7 @@ class CI360Viewer {
     this.removeLoader();
 
     if (!this.fullScreenView) {
-      this.speedFactor = Math.floor(this.dragSpeed / 150 * 36 / this.amount * 25 * this.container.offsetWidth / 1500) || 1;
+      this.speedFactor = Math.floor(this.dragSpeed / 150 * 36 / this.cols * 25 * this.container.offsetWidth / 1500) || 1;
     } else {
       const containerRatio = this.container.offsetHeight / this.container.offsetWidth;
       let imageOffsetWidth = this.container.offsetWidth;
@@ -322,7 +333,7 @@ class CI360Viewer {
         imageOffsetWidth = this.container.offsetHeight / this.ratio;
       }
 
-      this.speedFactor = Math.floor(this.dragSpeed / 150 * 36 / this.amount * 25 * imageOffsetWidth / 1500) || 1;
+      this.speedFactor = Math.floor(this.dragSpeed / 150 * 36 / this.cols * 25 * imageOffsetWidth / 1500) || 1;
     }
 
     if (this.autoplay) {
@@ -459,7 +470,7 @@ class CI360Viewer {
   }
 
   getOriginalSrc() {
-    const currentImage = this.images[this.activeImage - 1];
+    const currentImage = this.images[this.getActiveImageId() - 1];
     const lastIndex = currentImage.src.lastIndexOf('//');
 
     return lastIndex > 10 ? currentImage.src.slice(lastIndex) : currentImage.src;
