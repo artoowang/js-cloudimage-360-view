@@ -12,5 +12,6 @@ yarn-debug.log*
 yarn-error.log*
 package-lock.json
 .*.swp
-examples/src/M1100
+examples/src/hemisphere_*
+examples/src/*.zip
 examples/src/js-cloudimage-360-view.min.js
