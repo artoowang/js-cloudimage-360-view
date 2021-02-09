@@ -174,33 +174,36 @@ class CI360Viewer {
   }
 
   onMove(pageX, pageY) {
-    if (pageX - this.movementStart >= this.speedFactor) {
-      let itemsSkippedRight = Math.floor((pageX - this.movementStart) / this.speedFactor) || 1;
+    // X movement.
+    if (pageX - this.movementStart >= this.speedFactorX) {
+      let itemsSkippedRight = Math.floor((pageX - this.movementStart) / this.speedFactorX) || 1;
 
       this.movementStart = pageX;
 
       if (this.spinReverse) {
-        this.moveActiveIndexDown(itemsSkippedRight);
+        this.decreaseColumnIndex(itemsSkippedRight);
       } else {
-        this.moveActiveIndexUp(itemsSkippedRight);
+        this.increaseColumnIndex(itemsSkippedRight);
       }
 
       if (this.bottomCircle) this.hide360ViewCircleIcon();
       this.update();
-    } else if (this.movementStart - pageX >= this.speedFactor) {
-      let itemsSkippedLeft = Math.floor((this.movementStart - pageX) / this.speedFactor) || 1;
+    } else if (this.movementStart - pageX >= this.speedFactorX) {
+      let itemsSkippedLeft = Math.floor((this.movementStart - pageX) / this.speedFactorX) || 1;
 
       this.movementStart = pageX;
 
       if (this.spinReverse) {
-        this.moveActiveIndexUp(itemsSkippedLeft);
+        this.increaseColumnIndex(itemsSkippedLeft);
       } else {
-        this.moveActiveIndexDown(itemsSkippedLeft);
+        this.decreaseColumnIndex(itemsSkippedLeft);
       }
 
       if (this.bottomCircle) this.hide360ViewCircleIcon();
       this.update();
     }
+
+    // Y movement.
   }
 
   // row: in {1, ..., this.rows}.
@@ -213,7 +216,7 @@ class CI360Viewer {
     return this.getImageId(this.activeRow, this.activeCol);
   }
 
-  moveActiveIndexUp(itemsSkipped) {
+  increaseColumnIndex(itemsSkipped) {
     const isReverse = this.controlReverse ? !this.spinReverse : this.spinReverse;
 
     if (this.stopAtEdges) {
@@ -239,7 +242,7 @@ class CI360Viewer {
     }
   }
 
-  moveActiveIndexDown(itemsSkipped) {
+  decreaseColumnIndex(itemsSkipped) {
     const isReverse = this.controlReverse ? !this.spinReverse : this.spinReverse;
 
     if (this.stopAtEdges) {
@@ -273,12 +276,12 @@ class CI360Viewer {
   }
 
   next() {
-    this.moveActiveIndexUp(1);
+    this.increaseColumnIndex(1);
     this.update();
   }
 
   prev() {
-    this.moveActiveIndexDown(1);
+    this.decreaseColumnIndex(1);
     this.update();
   }
 
@@ -324,16 +327,20 @@ class CI360Viewer {
     this.removeLoader();
 
     if (!this.fullScreenView) {
-      this.speedFactor = Math.floor(this.dragSpeed / 150 * 36 / this.cols * 25 * this.container.offsetWidth / 1500) || 1;
+      this.speedFactorX = Math.floor(this.dragSpeed / 150 * 36 / this.cols * 25 * this.container.offsetWidth / 1500) || 1;
+      this.speedFactorY = Math.floor(this.dragSpeed / 150 * 36 / this.rows * 25 * this.container.offsetHeight / 1500) || 1;
     } else {
       const containerRatio = this.container.offsetHeight / this.container.offsetWidth;
       let imageOffsetWidth = this.container.offsetWidth;
+      let imageOffsetHeight = this.container.offsetHeight;
 
+      // TODO: What is this for? Should it also be applied to height?
       if (this.ratio > containerRatio) {
         imageOffsetWidth = this.container.offsetHeight / this.ratio;
       }
 
-      this.speedFactor = Math.floor(this.dragSpeed / 150 * 36 / this.cols * 25 * imageOffsetWidth / 1500) || 1;
+      this.speedFactorX = Math.floor(this.dragSpeed / 150 * 36 / this.cols * 25 * imageOffsetWidth / 1500) || 1;
+      this.speedFactorY = Math.floor(this.dragSpeed / 150 * 36 / this.rows * 25 * imageOffsetHeight / 1500) || 1;
     }
 
     if (this.autoplay) {
