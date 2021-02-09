@@ -75,7 +75,7 @@ class CI360Viewer {
   mousemove(event) {
     if (!this.isClicked || !this.imagesLoaded) return;
 
-    this.onMove(event.pageX);
+    this.onMove(event.pageX, event.pageY);
   }
 
   touchstart(event) {
@@ -110,7 +110,7 @@ class CI360Viewer {
   touchmove(event) {
     if (!this.isClicked || !this.imagesLoaded) return;
 
-    this.onMove(event.touches[0].clientX);
+    this.onMove(event.touches[0].clientX, event.touches[0].clientY);
   }
 
   keydownGeneral() {
@@ -172,7 +172,7 @@ class CI360Viewer {
     if (this.bottomCircle) this.show360ViewCircleIcon();
   }
 
-  onMove(pageX) {
+  onMove(pageX, pageY) {
     if (pageX - this.movementStart >= this.speedFactor) {
       let itemsSkippedRight = Math.floor((pageX - this.movementStart) / this.speedFactor) || 1;
 
@@ -776,7 +776,7 @@ class CI360Viewer {
 
   init(container) {
     let {
-      folder, filename, imageList, indexZeroBase, amount, draggable = true, swipeable = true, keys, bottomCircle, bottomCircleOffset, boxShadow,
+      folder, filename, imageList, indexZeroBase, amount, rows, cols, draggable = true, swipeable = true, keys, bottomCircle, bottomCircleOffset, boxShadow,
       autoplay, speed, autoplayReverse, fullScreen, magnifier, ratio, responsive, ciToken, ciSize, ciOperation,
       ciFilters, lazyload, lazySelector, spinReverse, dragSpeed, stopAtEdges, controlReverse, hide360Logo, logoSrc
     } = get360ViewProps(container);
@@ -790,6 +790,8 @@ class CI360Viewer {
     this.imageList = imageList;
     this.indexZeroBase = indexZeroBase;
     this.amount = amount;
+    this.rows = rows;
+    this.cols = cols;
     this.bottomCircle = bottomCircle;
     this.bottomCircleOffset = bottomCircleOffset;
     this.boxShadow = boxShadow;

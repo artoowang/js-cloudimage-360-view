@@ -4,6 +4,8 @@ const get360ViewProps = (image) => ({
   imageList: attr(image, 'image-list') || attr(image, 'data-image-list') || null,
   indexZeroBase: parseInt(attr(image, 'index-zero-base') || attr(image, 'data-index-zero-base') || 0, 10),
   amount: parseInt(attr(image, 'amount') || attr(image, 'data-amount') || 36, 10),
+  rows: parseInt(attr(image, 'rows') || attr(image, 'data-rows') || 1, 10),
+  cols: parseInt(attr(image, 'cols') || attr(image, 'data-cols') || 36, 10),
   speed: parseInt(attr(image, 'speed') || attr(image, 'data-speed') || 80, 10),
   dragSpeed: parseInt(attr(image, 'drag-speed') || attr(image, 'data-drag-speed') || 150, 10),
   keys: isTrue(image, 'keys'),
