@@ -27,7 +27,8 @@ const get360ViewProps = (image) => ({
   lazySelector: attr(image, 'lazyload-selector') || attr(image, 'data-lazyload-selector') || 'lazyload',
   spinReverse: isTrue(image, 'spin-reverse'),
   controlReverse: isTrue(image, 'control-reverse'),
-  stopAtEdges: isTrue(image, 'stop-at-edges'),
+  stopAtEdgesX: isTrue(image, 'stop-at-edges-x'),
+  stopAtEdgesY: isTrue(image, 'stop-at-edges-y'),
   hide360Logo: isTrue(image, 'hide-360-logo'),
   logoSrc: attr(image, 'logo-src') || 'https://scaleflex.ultrafast.io/https://scaleflex.airstore.io/filerobot/js-cloudimage-360-view/360_view.svg'
 });

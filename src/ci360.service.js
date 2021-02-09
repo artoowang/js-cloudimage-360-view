@@ -24,7 +24,8 @@ class CI360Viewer {
     this.container = container;
     this.activeRow = 1;
     this.activeCol = 1;
-    this.movementStart = 0;
+    this.movementStartX = 0;
+    this.movementStartY = 0;
     this.isClicked = false;
     this.loadedImages = 0;
     this.imagesLoaded = false;
@@ -56,7 +57,8 @@ class CI360Viewer {
       this.autoplay = false;
     }
 
-    this.movementStart = event.pageX;
+    this.movementStartX = event.pageX;
+    this.movementStartY = event.pageY;
     this.isClicked = true;
     this.container.style.cursor = 'grabbing';
   }
@@ -64,7 +66,8 @@ class CI360Viewer {
   mouseup() {
     if (!this.imagesLoaded) return;
 
-    this.movementStart = 0;
+    this.movementStartX = 0;
+    this.movementStartY = 0;
     this.isClicked = false;
     this.container.style.cursor = 'grab';
 
@@ -95,14 +98,16 @@ class CI360Viewer {
       this.autoplay = false;
     }
 
-    this.movementStart = event.touches[0].clientX;
+    this.movementStartX = event.touches[0].clientX;
+    this.movementStartY = event.touches[0].clientY;
     this.isClicked = true;
   }
 
   touchend() {
     if (!this.imagesLoaded) return;
 
-    this.movementStart = 0;
+    this.movementStartX = 0;
+    this.movementStartY = 0;
     this.isClicked = false;
 
     if (this.bottomCircle) this.show360ViewCircleIcon();
@@ -175,10 +180,10 @@ class CI360Viewer {
 
   onMove(pageX, pageY) {
     // X movement.
-    if (pageX - this.movementStart >= this.speedFactorX) {
-      let itemsSkippedRight = Math.floor((pageX - this.movementStart) / this.speedFactorX) || 1;
+    if (pageX - this.movementStartX >= this.speedFactorX) {
+      let itemsSkippedRight = Math.floor((pageX - this.movementStartX) / this.speedFactorX) || 1;
 
-      this.movementStart = pageX;
+      this.movementStartX = pageX;
 
       if (this.spinReverse) {
         this.decreaseColumnIndex(itemsSkippedRight);
@@ -187,11 +192,10 @@ class CI360Viewer {
       }
 
       if (this.bottomCircle) this.hide360ViewCircleIcon();
-      this.update();
-    } else if (this.movementStart - pageX >= this.speedFactorX) {
-      let itemsSkippedLeft = Math.floor((this.movementStart - pageX) / this.speedFactorX) || 1;
+    } else if (this.movementStartX - pageX >= this.speedFactorX) {
+      let itemsSkippedLeft = Math.floor((this.movementStartX - pageX) / this.speedFactorX) || 1;
 
-      this.movementStart = pageX;
+      this.movementStartX = pageX;
 
       if (this.spinReverse) {
         this.increaseColumnIndex(itemsSkippedLeft);
@@ -200,10 +204,36 @@ class CI360Viewer {
       }
 
       if (this.bottomCircle) this.hide360ViewCircleIcon();
-      this.update();
     }
 
     // Y movement.
+    if (pageY - this.movementStartY >= this.speedFactorY) {
+      let itemsSkippedDown = Math.floor((pageY - this.movementStartY) / this.speedFactorY) || 1;
+
+      this.movementStartY = pageY;
+
+      if (this.spinReverse) {
+        this.increaseRowIndex(itemsSkippedDown);
+      } else {
+        this.decreaseRowIndex(itemsSkippedDown);
+      }
+
+      if (this.bottomCircle) this.hide360ViewCircleIcon();
+    } else if (this.movementStartY - pageY >= this.speedFactorY) {
+      let itemsSkippedUp = Math.floor((this.movementStartY - pageY) / this.speedFactorY) || 1;
+
+      this.movementStartY = pageY;
+
+      if (this.spinReverse) {
+        this.decreaseRowIndex(itemsSkippedUp);
+      } else {
+        this.increaseRowIndex(itemsSkippedUp);
+      }
+
+      if (this.bottomCircle) this.hide360ViewCircleIcon();
+    }
+
+    this.update();
   }
 
   // row: in {1, ..., this.rows}.
@@ -219,7 +249,7 @@ class CI360Viewer {
   increaseColumnIndex(itemsSkipped) {
     const isReverse = this.controlReverse ? !this.spinReverse : this.spinReverse;
 
-    if (this.stopAtEdges) {
+    if (this.stopAtEdgesX) {
       if (this.activeCol + itemsSkipped >= this.cols) {
         this.activeCol = this.cols;
 
@@ -245,7 +275,7 @@ class CI360Viewer {
   decreaseColumnIndex(itemsSkipped) {
     const isReverse = this.controlReverse ? !this.spinReverse : this.spinReverse;
 
-    if (this.stopAtEdges) {
+    if (this.stopAtEdgesX) {
       if (this.activeCol - itemsSkipped <= 1) {
         this.activeCol = 1;
 
@@ -267,6 +297,61 @@ class CI360Viewer {
         this.activeCol = this.cols + (this.activeCol - itemsSkipped);
       } else {
         this.activeCol -= itemsSkipped;
+      }
+    }
+  }
+
+  increaseRowIndex(itemsSkipped) {
+    const isReverse = this.controlReverse ? !this.spinReverse : this.spinReverse;
+
+    if (this.stopAtEdgesY) {
+      if (this.activeRow + itemsSkipped >= this.rows) {
+        this.activeRow = this.rows;
+
+        if (isReverse ? this.prevElem : this.nextElem) {
+          addClass(isReverse ? this.prevElem : this.nextElem, 'not-active');
+        }
+      } else {
+        this.activeRow += itemsSkipped;
+
+        if (this.nextElem) {
+          removeClass(this.nextElem, 'not-active');
+        }
+
+        if (this.prevElem) {
+          removeClass(this.prevElem, 'not-active');
+        }
+      }
+    } else {
+      this.activeRow = (this.activeRow + itemsSkipped) % this.rows || this.rows;
+    }
+  }
+
+  decreaseRowIndex(itemsSkipped) {
+    const isReverse = this.controlReverse ? !this.spinReverse : this.spinReverse;
+
+    if (this.stopAtEdgesY) {
+      if (this.activeRow - itemsSkipped <= 1) {
+        this.activeRow = 1;
+
+        if (isReverse ? this.nextElem : this.prevElem) {
+          addClass(isReverse ? this.nextElem : this.prevElem, 'not-active');
+        }
+      } else {
+        this.activeRow -= itemsSkipped;
+
+        if (this.prevElem) {
+          removeClass(this.prevElem, 'not-active');
+        }
+        if (this.nextElem) {
+          removeClass(this.nextElem, 'not-active');
+        }
+      }
+    } else {
+      if (this.activeRow - itemsSkipped < 1) {
+        this.activeRow = this.rows + (this.activeRow - itemsSkipped);
+      } else {
+        this.activeRow -= itemsSkipped;
       }
     }
   }
@@ -738,7 +823,8 @@ class CI360Viewer {
     }
 
     if (isReverse ? next : prev) {
-      if (this.stopAtEdges) {
+      // TODO: How does this work with Y-axis?
+      if (this.stopAtEdgesX) {
         addClass(isReverse ? next : prev, 'not-active');
       }
     }
@@ -796,7 +882,7 @@ class CI360Viewer {
     let {
       folder, filename, imageList, indexZeroBase, amount, rows, cols, draggable = true, swipeable = true, keys, bottomCircle, bottomCircleOffset, boxShadow,
       autoplay, speed, autoplayReverse, fullScreen, magnifier, ratio, responsive, ciToken, ciSize, ciOperation,
-      ciFilters, lazyload, lazySelector, spinReverse, dragSpeed, stopAtEdges, controlReverse, hide360Logo, logoSrc
+      ciFilters, lazyload, lazySelector, spinReverse, dragSpeed, stopAtEdgesX, stopAtEdgesY, controlReverse, hide360Logo, logoSrc
     } = get360ViewProps(container);
     const ciParams = { ciSize, ciToken, ciOperation, ciFilters };
 
@@ -824,7 +910,8 @@ class CI360Viewer {
     this.controlReverse = controlReverse;
     this.dragSpeed = dragSpeed;
     this.autoplaySpeed = this.speed * 36 / this.amount;
-    this.stopAtEdges = stopAtEdges;
+    this.stopAtEdgesX = stopAtEdgesX;
+    this.stopAtEdgesY = stopAtEdgesY;
     this.hide360Logo = hide360Logo;
     this.logoSrc = logoSrc;
 
