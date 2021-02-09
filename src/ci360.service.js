@@ -727,7 +727,9 @@ class CI360Viewer {
       }
     } else {
       [...new Array(amount)].map((_item, index) => {
-        const nextZeroFilledIndex = pad(index + 1, this.indexZeroBase);
+        // TODO: Changed to use zero-based index here, but I'm not sure if this
+        // is the only place that needs to be changed.
+        const nextZeroFilledIndex = pad(index, this.indexZeroBase);
         const resultSrc = src.replace('{index}', nextZeroFilledIndex);
         this.addImage(resultSrc, lazyload, lazySelector, index);
       });
