@@ -387,10 +387,11 @@ class CI360Viewer {
 
       ctx.drawImage(image, offsetX, offsetY, width, height);
     } else {
-      this.canvas.width = this.container.offsetWidth * this.devicePixelRatio;
-      this.canvas.style.width = this.container.offsetWidth + 'px';
-      this.canvas.height = this.container.offsetWidth * this.devicePixelRatio / image.width * image.height;
-      this.canvas.style.height = this.container.offsetWidth / image.width * image.height + 'px';
+      const width = image.width;
+      this.canvas.width = width * this.devicePixelRatio;
+      this.canvas.style.width = width + 'px';
+      this.canvas.height = width * this.devicePixelRatio / image.width * image.height;
+      this.canvas.style.height = width / image.width * image.height + 'px';
 
       ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height);
     }
@@ -458,10 +459,11 @@ class CI360Viewer {
 
       ctx.drawImage(event.target, offsetX, offsetY, width, height);
     } else {
-      this.canvas.width = this.container.offsetWidth * this.devicePixelRatio;
-      this.canvas.style.width = this.container.offsetWidth + 'px';
-      this.canvas.height = this.container.offsetWidth * this.devicePixelRatio / event.target.width * event.target.height;
-      this.canvas.style.height = this.container.offsetWidth / event.target.width * event.target.height + 'px';
+      const width = event.target.width;
+      this.canvas.width = width * this.devicePixelRatio;
+      this.canvas.style.width = width + 'px';
+      this.canvas.height = width * this.devicePixelRatio / event.target.width * event.target.height;
+      this.canvas.style.height = width / event.target.width * event.target.height + 'px';
 
       const ctx = this.canvas.getContext("2d");
 

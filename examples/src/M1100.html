@@ -6,17 +6,23 @@
   </head>
 
   <body>
-    <div
-      class="cloudimage-360"
-      data-folder="hemisphere_960/"
-      data-filename="{index}_rgb.jpg"
-      data-amount="600"
-      data-rows="12"
-      data-cols="50"
-      data-spin-reverse
-      stop-at-edges-y
-      index-zero-base="6"
-    ></div>
+    <!--
+      From
+      https://css-tricks.com/quick-css-trick-how-to-center-an-object-exactly-in-the-center/
+    -->
+    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%)">
+      <div
+        class="cloudimage-360"
+        data-folder="hemisphere_960/"
+        data-filename="{index}_rgb.jpg"
+        data-amount="600"
+        data-rows="12"
+        data-cols="50"
+        data-spin-reverse
+        stop-at-edges-y
+        index-zero-base="6"
+      ></div>
+    </div>
     <script src="js-cloudimage-360-view.min.js"></script>
   </body>
 </html>
